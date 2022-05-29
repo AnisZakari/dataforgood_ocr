@@ -205,3 +205,176 @@ for text in tqdm(df_l["text_cleaned"]):
             freq_dict[str(word).lower()] =
 
 freq_dic_sorted = {k: v for k, v in sorted(freq_dict.items(), reverse = True, key=lambda item: item[1]) if v > 1}
+
+
+
+"TFIDF TRICK___________"
+
+
+def get_index_to_word_dict(vectorizer):
+    """ make the dictionnary index_to_word
+    Parameters
+    ----------
+    vectorizer: sklearn.feature_extraction.text.TfidfVectorizer
+        tfidf_vectorizer instance fit on a sub_dataframe. 
+    
+    Returns
+    -------
+    index_to_word: dict
+        maps a word index (vectorizer.vocabulary_) to its associated word.
+    """
+    index_to_word = {index: word for index, word in zip(vectorizer.vocabulary_.values(), vectorizer.vocabulary_.keys())}
+    return index_to_word
+
+def get_words_with_highest_scores(scores, words, n_words_to_take):
+    """
+    takes scores and words of an OCR as inputs and returns 
+    words with highest tfidf scores
+
+    Parameters
+    ----------
+    scores: list
+        list of tfidf scores.
+    words: list
+        list of words
+    n_words_to_take: int
+        number of words to select.
+
+    Returns
+    -------
+    best_items: list
+        list of words with highest scores.
+    items: list:
+        all items
+    """
+    items = [item for item in sorted(zip(scores, words), reverse = True)]
+    best_items = items[:n_words_to_take]
+    return best_items, items
+
+
+def get_words_and_scores_from_tfidf_matrix(doc, cols, tfidf_matrix, index_to_word):
+    """takes a document (line of tfidf matrix) and its words (columns of tfidf matrix
+    and returns words of the documents with their ifidf scores
+    columns are the non zero values of the tfidf matrix.
+
+    Parameters
+    ----------
+    doc: int
+        document index.
+    cols: int
+        column indexes.
+    tfidf_matrix: scipy.sparse.csr.csr_matrix
+        tdidf sparse matrix.
+    index_to_word: dict
+        maps a word index (vectorizer.vocabulary_) to its associated word.
+
+    Returns
+    -------
+    best_items: list
+        list of words with highest scores.
+    items: list:
+        list of all words.
+    """
+    scores = []
+    words = []
+    for col in cols:
+        word = index_to_word[col] 
+        score = tfidf_matrix[doc, col]
+        words.append(word)
+        scores.append(score)
+    return words, scores
+
+def text_selection(df_idx, sub_df_idx,  index_to_word, tfidf_matrix, n_words_to_take = 50):
+    """ makes the text selection on a document based on the tfidf score
+    
+    Parameters
+    ----------
+    df_idx: int
+        index of the document in the original dataframe
+    sub_df_idx: int
+        index of the document in the sub-dataframe (filtered dataframe on a given language)
+    index_to_word: dict
+        maps a word index (vectorizer.vocabulary_) to its associated word.
+    tdidf_matrix: scipy.sparse.csr.csr_matrix
+        tdidf sparse matrix for a given language.
+    n_words_to_take: int
+        total words to keep.
+    
+    Returns
+    -------
+    text_selection: str
+        text selected after the tfidf trick.
+    items: list
+        list where each element is a tuple in the following format (tdidf_score, word).
+        All the words in the original text are kept.
+    """
+    rows, cols = tfidf_matrix[sub_df_idx].nonzero()
+    ## extract words and scores from tfidf matrix
+    words, scores = get_words_and_scores_from_tfidf_matrix(sub_df_idx, cols, tfidf_matrix, index_to_word)
+    #extract words with highest score from sentence
+    best_items, items = get_words_with_highest_scores(scores, words, n_words_to_take)
+    best_words = [item[1] for item in best_items]
+    
+    text_selection = " ".join([word for word in df["text_cleaned"].iloc[df_idx].split() if str(word).lower() in best_words])
+    text_selection = " ".join(best_words)
+    #text_selection_unique = remove_duplicates(text_selection)
+    return text_selection, items
+
+def text_selection_from_Series(text_Series, tfidf_matrix, index_to_word):
+    """ takes a text pd.Series as input and makes the tfidf-selection for each document
+
+    Parameters
+    ----------
+    text_Series: pd.Series
+        pd.Series containing OCR text
+    tdidf_matrix: scipy.sparse.csr.csr_matrix
+        tdidf sparse matrix for a given language.
+    index_to_word: dict
+        maps a word index (vectorizer.vocabulary_) to its associated word.
+
+    Returns
+    -------
+    text_selection_list: list
+        list containing all the texts after the tfidf-selection
+    items_list: list
+        each element of items_list is a list containing items.
+        An item is in the following format (tdidf_score, word)
+        All the words in the original text are kept.
+    """
+    text_selection_list = []
+    items_list = []
+    for sub_df_idx, df_idx in enumerate(tqdm(text_Series.index)):
+        text_selection_unique, items = text_selection(df_idx, sub_df_idx, index_to_word, tfidf_matrix, n_words_to_take = 30)
+        text_selection_list.append(text_selection_unique)
+        items_list.append(items)
+    return text_selection_list, items_list
+
+"""takes approx 6min"""
+from sklearn.feature_extraction.text import TfidfVectorizer
+from IPython.display import clear_output
+problematic_langs = []
+df = df.reset_index(drop = True)
+for lang in df["main_lang"].unique():
+    print("lang:", lang)
+    lang_filter = df["main_lang"]== lang 
+    sub_df = df[lang_filter]
+    try:
+        vectorizer = TfidfVectorizer(min_df = 1, max_df = 0.8)
+        tfidf_matrix = vectorizer.fit_transform(sub_df["text_cleaned"])
+        index_to_word = get_index_to_word_dict(vectorizer)
+        text_selection_list, items_list =  text_selection_from_Series(sub_df["text_cleaned"], tfidf_matrix, index_to_word)
+        df.loc[lang_filter, "tfidf_selection"] = text_selection_list
+    except:
+        problematic_langs.append(lang)
+    clear_output()
+
+
+
+
+"""
+remarque OCR en russe probleme marche pas tres bien
+avoir les txtannotations pour les produits
+
+"""
+
+

@@ -4,6 +4,8 @@ __pycache__/
 *$py.class
 *.csv
 *.pkl
+get_new_barcodes.ipynb 
+old.py
 
 # C extensions
 *.so

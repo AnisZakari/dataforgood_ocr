@@ -110,7 +110,7 @@ def parallel_calc(func, iterable, n_core = mp.cpu_count()):
 
 def parallel_calc_multi(func, *args, n_core = mp.cpu_count()):
     """ simple wrapper code around func to parallelize the work.
-    this version accepts multiple arguments
+    This version supports multiple arguments
     
     Parameters
     ----------
