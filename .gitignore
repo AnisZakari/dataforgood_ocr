@@ -6,6 +6,7 @@ __pycache__/
 *.pkl
 get_new_barcodes.ipynb 
 old.py
+*.DS_Store
 
 # C extensions
 *.so
