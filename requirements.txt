@@ -13,3 +13,6 @@ pytz==2022.1
 six==1.16.0
 tqdm==4.64.0
 virtualenv==20.10.0
+matplotlib==3.5.2
+matplotlib-inline @ file:///home/conda/feedstock_root/build_artifacts/matplotlib-inline_1631080358261/work
+seaborn==0.11.2
