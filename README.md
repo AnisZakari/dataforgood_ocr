@@ -5,8 +5,8 @@ Recommended python version: python3.9
 To run this project see the following steps:
 
 # Creating virtual environment:
-`conda create --name ocr_env python=3.9`
-then:
+`conda create --name ocr_env python=3.9`  
+then:  
 `conda activate ocr_env`
 
 # Clone repo:
