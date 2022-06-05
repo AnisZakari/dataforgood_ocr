@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import json
 import requests
-from utils.preprocessing import remove_duplicates, text_cleaner
+from utils.OCR_preprocessing import remove_duplicates, text_cleaner
 
 ### TFIDF TRICK
 

@@ -19,7 +19,8 @@ then:
 `pip install -r requirements.txt`
 
 # Download pretrained weights for fasttext
-`wget ..datasets/lid.176.bin https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin`
+`wget fasttext_weights/lid.176.bin https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin`
+Or you can just download `lid.176.bin` and put it in the folder `fasttext_weights`
 
 # Run notebook
 know you are good ! you can run the notebook

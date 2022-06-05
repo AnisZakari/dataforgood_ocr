@@ -2,8 +2,18 @@
 __pycache__/
 *.py[cod]
 *$py.class
+
+#custom
 *.csv
 *.pkl
+*.json 
+*.txt 
+*.bin
+*.gz 
+*.gzip 
+*.jsonl 
+
+#specific files
 get_new_barcodes.ipynb 
 old.py
 .DS_Store

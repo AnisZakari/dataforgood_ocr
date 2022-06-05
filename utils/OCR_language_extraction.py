@@ -5,8 +5,8 @@ import numpy as np
 from tqdm import tqdm
 import re
 #load model
-#PRETRAINED_MODEL_PATH = '../datasets/lid.176.bin'
-
+#PRETRAINED_MODEL_PATH = 'fasttext_weights/lid.176.bin'
+#link to download fasttext weights---> https://dl.fbaipublicfiles.com/fasttext/supervised-models/lid.176.bin
 
 
 def artificial_sentence_split(text:str, n_words_per_sentence:int = 8)-> list['str']: 
