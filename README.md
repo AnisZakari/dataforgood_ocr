@@ -25,7 +25,7 @@ then:
 Or you can just download `lid.176.bin` and put it in the folder `fasttext_weights`
 
 # Run notebook
-know you are good ! you can run the notebook
+Now you are good to go ! you can run the notebook
 
 
 ## About the input file
